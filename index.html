@@ -3,27 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rayssa Bros - Completo</title>
+    <title>Rayssa Bros - Otimizado</title>
     <style>
-        * { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
-        body { margin: 0; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
-        canvas { background: #5c94fc; border: 4px solid #fff; border-radius: 12px; width: 95vw; max-width: 900px; height: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
-        .info { color: white; font-size: 24px; margin-bottom: 10px; font-weight: bold; text-shadow: 2px 2px #000; }
-        .controls { display: flex; gap: 15px; margin-top: 15px; width: 95vw; max-width: 900px; justify-content: center; }
-        button { background: #e60012; border: none; padding: 20px 0; color: white; font-size: 26px; border-radius: 12px; box-shadow: 0 6px #990000; flex: 1; font-weight: bold; cursor: pointer; }
-        .btn-jump { background: #f1c40f; box-shadow: 0 6px #d4ac0d; color: #333; }
-        button:active { box-shadow: 0 2px #990000; transform: translateY(4px); }
-        #menu { position: absolute; background: rgba(0,0,0,0.95); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; gap: 20px; text-align: center; }
-        .skin-btn { background: #333; border: 3px solid white; padding: 18px 30px; color: white; font-size: 22px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        * { 
+            touch-action: manipulation; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            background: #111; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            font-family: Arial, sans-serif; 
+        }
+
+        canvas { 
+            background: #5c94fc; 
+            border: 4px solid #fff; 
+            border-radius: 12px; 
+            width: 95vw; 
+            max-width: 900px; 
+            height: auto; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
+        }
+
+        .info { 
+            color: white; 
+            font-size: 24px; 
+            margin-bottom: 8px; 
+            font-weight: bold; 
+            text-shadow: 2px 2px #000; 
+        }
+
+        .controls { 
+            display: flex; 
+            gap: 15px; 
+            margin-top: 12px; 
+            width: 95vw; 
+            max-width: 900px; 
+            justify-content: center; 
+        }
+
+        button { 
+            background: #e60012; 
+            border: none; 
+            padding: 18px 0; 
+            color: white; 
+            font-size: 24px; 
+            border-radius: 12px; 
+            box-shadow: 0 6px #990000; 
+            flex: 1; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
+        .btn-jump { 
+            background: #f1c40f; 
+            box-shadow: 0 6px #d4ac0d; 
+            color: #333; 
+        }
+
+        button:active { 
+            box-shadow: 0 2px #990000; 
+            transform: translateY(4px); 
+        }
+
+        /* ESTILIZAGEM DAS TELAS (MENUS E CARREGAMENTO) */
+        .overlay-screen { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 20; 
+            color: white; 
+            gap: 15px; 
+            text-align: center; 
+            padding: 20px;
+        }
+
+        .hidden { display: none !important; }
+
+        .menu-btn { 
+            background: #f1c40f; 
+            border: 3px solid white; 
+            padding: 14px 28px; 
+            color: black; 
+            font-size: 20px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 80%;
+            max-width: 320px;
+            box-shadow: 0 5px #d4ac0d;
+        }
+
+        .menu-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px #d4ac0d;
+        }
+
+        .btn-disabled { 
+            opacity: 0.5; 
+            pointer-events: none; 
+            background: #555;
+            box-shadow: none;
+        }
+
+        .load-bar-container {
+            width: 70%;
+            max-width: 350px;
+            height: 26px;
+            background: #222;
+            border: 3px solid #fff;
+            border-radius: 13px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .load-bar {
+            height: 100%;
+            width: 0%;
+            background: #2ecc71;
+            transition: width 0.1s;
+        }
     </style>
 </head>
 <body>
 
-    <!-- MENU INICIAL -->
-    <div id="menu">
-        <h2>ESCOLHA A ROUPA DA RAYSSA</h2>
-        <button class="skin-btn" onclick="iniciarSkin('rayssa_vermelha.png')">🔴 Roupa Vermelha</button>
-        <button class="skin-btn" onclick="iniciarSkin('rayssa_preta.png')">⚫ Roupa Preta</button>
+    <div id="main-menu" class="overlay-screen" style="background: rgba(192, 57, 43, 0.95);">
+        <h1 style="font-size: 42px; text-shadow: 3px 3px 0 #000;">RAYSSA BROS 2</h1>
+        <button class="menu-btn" onclick="openPlayMenu()">JOGAR</button>
+        <button class="menu-btn" onclick="alert('Feche a aba para sair!')">SAIR</button>
+    </div>
+
+    <div id="play-menu" class="overlay-screen hidden" style="background: rgba(41, 128, 185, 0.95);">
+        <h2 style="font-size: 32px; text-shadow: 2px 2px 0 #000;">MODO DE JOGO</h2>
+        <button class="menu-btn" onclick="novoJogo()">NOVO JOGO</button>
+        <button id="btnLoad" class="menu-btn" onclick="carregarJogoSalvo()">CARREGAR JOGO</button>
+        <button class="menu-btn" onclick="changeScreen('main-menu')" style="background: #e74c3c; color: white; box-shadow: 0 5px #c0392b;">VOLTAR</button>
+    </div>
+
+    <div id="skin-menu" class="overlay-screen hidden" style="background: rgba(142, 68, 173, 0.95);">
+        <h2 style="font-size: 30px; text-shadow: 2px 2px 0 #000;">ESCOLHA A ROUPA</h2>
+        <button class="menu-btn" onclick="selecionarSkin('rayssa_vermelha.png')">🔴 Roupa Vermelha</button>
+        <button class="menu-btn" onclick="selecionarSkin('rayssa_preta.png')">⚫ Roupa Preta</button>
+        <button class="menu-btn" onclick="changeScreen('play-menu')" style="background: #e74c3c; color: white; box-shadow: 0 5px #c0392b;">VOLTAR</button>
+    </div>
+
+    <div id="load-screen" class="overlay-screen hidden" style="background: #000;">
+        <h2 style="font-size: 28px;">CARREGANDO FASE...</h2>
+        <div class="load-bar-container">
+            <div id="loadBar" class="load-bar"></div>
+        </div>
+        <p id="loadProgress" style="font-size: 18px; font-weight: bold; margin-top: 5px;">0%</p>
     </div>
 
     <div class="info" id="faseTexto">FASE 1</div>
@@ -37,7 +180,7 @@
     </div>
 
 <script>
-    // Áudios
+    // Gerenciador de Áudios
     const audioTema = new Audio('tema.mp3'); audioTema.loop = true;
     const audioPulo = new Audio('pulo.mp3');
     const audioMorte = new Audio('morte.mp3');
@@ -55,9 +198,70 @@
     const imgFundo = new Image();
 
     let faseAtual = 1;
+    let carregarFaseDestino = 1;
     const totalFases = 6; 
-    let estadoJogo = "jogando"; // "jogando", "transicao", "vitoria"
+    let estadoJogo = "menu";
+    let skinSelecionada = 'rayssa_vermelha.png';
+    let currentScreen = 'main-menu';
 
+    // SISTEMA DE TROCA DE TELAS / NAVEGAÇÃO
+    function changeScreen(newScreen) {
+        document.getElementById(currentScreen).classList.add('hidden');
+        document.getElementById(newScreen).classList.remove('hidden');
+        currentScreen = newScreen;
+    }
+
+    function openPlayMenu() {
+        const hasSave = localStorage.getItem('rayssa_bros_save');
+        const loadBtn = document.getElementById('btnLoad');
+        if (!hasSave) loadBtn.classList.add('btn-disabled');
+        else loadBtn.classList.remove('btn-disabled');
+        changeScreen('play-menu');
+    }
+
+    function novoJogo() {
+        carregarFaseDestino = 1;
+        changeScreen('skin-menu');
+    }
+
+    function carregarJogoSalvo() {
+        const saveData = localStorage.getItem('rayssa_bros_save');
+        if (saveData) {
+            const data = JSON.parse(saveData);
+            carregarFaseDestino = data.fase || 1;
+            changeScreen('skin-menu');
+        }
+    }
+
+    function selecionarSkin(skin) {
+        skinSelecionada = skin;
+        iniciarCarregamento();
+    }
+
+    function iniciarCarregamento() {
+        changeScreen('load-screen');
+        let progresso = 0;
+        const loadBar = document.getElementById('loadBar');
+        const loadProgress = document.getElementById('loadProgress');
+
+        const intervalo = setInterval(() => {
+            progresso += Math.floor(Math.random() * 6) + 4;
+            if (progresso > 100) progresso = 100;
+
+            loadBar.style.width = progresso + '%';
+            loadProgress.innerText = progresso + '%';
+
+            if (progresso === 100) {
+                clearInterval(intervalo);
+                setTimeout(() => { 
+                    document.getElementById('load-screen').classList.add('hidden');
+                    iniciarJogo(); 
+                }, 300);
+            }
+        }, 30);
+    }
+
+    // ESTRUTURA E REGRAS DO JOGO
     let player = { 
         x: 50, y: 300, 
         width: 65, height: 85, 
@@ -72,99 +276,57 @@
     const fases = {
         1: { 
             fundo: "fundo1.png",
-            plataformas: [
-                { x: 0, y: 470, width: 280, height: 80 }, { x: 360, y: 470, width: 250, height: 80 }, { x: 680, y: 470, width: 220, height: 80 },
-                { x: 220, y: 340, width: 150, height: 20 }, { x: 480, y: 250, width: 160, height: 20 }
-            ], 
-            inimigos: [
-                { x: 380, y: 395, width: 60, height: 75, dir: 2, minX: 360, maxX: 580, vivo: true, img: "comum" },
-                { x: 500, y: 195, width: 60, height: 75, dir: -2, minX: 480, maxX: 620, vivo: true, img: "comum" }
-            ],
-            batatas: [{ x: 400, y: 200, visivel: true }],
-            metaX: 830, metaY: 390, startX: 50, startY: 300 
+            plataformas: [{ x: 0, y: 470, width: 280, height: 80 }, { x: 360, y: 470, width: 250, height: 80 }, { x: 680, y: 470, width: 220, height: 80 }, { x: 220, y: 340, width: 150, height: 20 }, { x: 480, y: 250, width: 160, height: 20 }], 
+            inimigos: [{ x: 380, y: 395, width: 60, height: 75, dir: 2, minX: 360, maxX: 580, vivo: true, img: "comum" }, { x: 500, y: 195, width: 60, height: 75, dir: -2, minX: 480, maxX: 620, vivo: true, img: "comum" }],
+            batatas: [{ x: 400, y: 200, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300 
         },
         2: { 
             fundo: "fundo2.png",
-            plataformas: [
-                { x: 0, y: 470, width: 220, height: 80 }, { x: 280, y: 470, width: 200, height: 80 }, { x: 540, y: 470, width: 360, height: 80 },
-                { x: 220, y: 360, width: 130, height: 20 }, { x: 420, y: 280, width: 130, height: 20 }, { x: 650, y: 200, width: 150, height: 20 }
-            ], 
-            inimigos: [
-                { x: 300, y: 395, width: 60, height: 75, dir: 2.5, minX: 280, maxX: 440, vivo: true, img: "comum" },
-                { x: 680, y: 125, width: 60, height: 75, dir: -2.5, minX: 650, maxX: 780, vivo: true, img: "comum" }
-            ],
-            batatas: [{ x: 700, y: 150, visivel: true }],
-            metaX: 810, metaY: 390, startX: 50, startY: 300 
+            plataformas: [{ x: 0, y: 470, width: 220, height: 80 }, { x: 280, y: 470, width: 200, height: 80 }, { x: 540, y: 470, width: 360, height: 80 }, { x: 220, y: 360, width: 130, height: 20 }, { x: 420, y: 280, width: 130, height: 20 }, { x: 650, y: 200, width: 150, height: 20 }], 
+            inimigos: [{ x: 300, y: 395, width: 60, height: 75, dir: 2.5, minX: 280, maxX: 440, vivo: true, img: "comum" }, { x: 680, y: 125, width: 60, height: 75, dir: -2.5, minX: 650, maxX: 780, vivo: true, img: "comum" }],
+            batatas: [{ x: 700, y: 150, visivel: true }], metaX: 810, metaY: 390, startX: 50, startY: 300 
         },
         3: { 
             fundo: "fundo3.png",
-            plataformas: [
-                { x: 0, y: 470, width: 170, height: 80 }, { x: 230, y: 470, width: 170, height: 80 }, { x: 460, y: 470, width: 170, height: 80 }, { x: 690, y: 470, width: 210, height: 80 },
-                { x: 180, y: 370, width: 100, height: 20 }, { x: 360, y: 290, width: 100, height: 20 }, { x: 550, y: 210, width: 100, height: 20 }
-            ], 
-            inimigos: [
-                { x: 240, y: 395, width: 60, height: 75, dir: 2, minX: 230, maxX: 360, vivo: true, img: "comum" },
-                { x: 380, y: 215, width: 60, height: 75, dir: -2, minX: 360, maxX: 440, vivo: true, img: "comum" }
-            ],
-            batatas: [{ x: 200, y: 300, visivel: true }],
-            metaX: 820, metaY: 390, startX: 50, startY: 300 
+            plataformas: [{ x: 0, y: 470, width: 170, height: 80 }, { x: 230, y: 470, width: 170, height: 80 }, { x: 460, y: 470, width: 170, height: 80 }, { x: 690, y: 470, width: 210, height: 80 }, { x: 180, y: 370, width: 100, height: 20 }, { x: 360, y: 290, width: 100, height: 20 }, { x: 550, y: 210, width: 100, height: 20 }], 
+            inimigos: [{ x: 240, y: 395, width: 60, height: 75, dir: 2, minX: 230, maxX: 360, vivo: true, img: "comum" }, { x: 380, y: 215, width: 60, height: 75, dir: -2, minX: 360, maxX: 440, vivo: true, img: "comum" }],
+            batatas: [{ x: 200, y: 300, visivel: true }], metaX: 820, metaY: 390, startX: 50, startY: 300 
         },
-        4: { // Fase nova com o inimigo novo (inimigo1.png)
+        4: { 
             fundo: "fundo2.png",
-            plataformas: [
-                { x: 0, y: 470, width: 300, height: 80 }, { x: 380, y: 470, width: 520, height: 80 },
-                { x: 150, y: 350, width: 120, height: 20 }, { x: 400, y: 260, width: 140, height: 20 }, { x: 680, y: 180, width: 150, height: 20 }
-            ],
-            inimigos: [
-                { x: 420, y: 395, width: 65, height: 75, dir: 3, minX: 380, maxX: 850, vivo: true, img: "novo" },
-                { x: 420, y: 185, width: 65, height: 75, dir: -2, minX: 400, maxX: 520, vivo: true, img: "novo" }
-            ],
-            batatas: [{ x: 450, y: 210, visivel: true }],
-            metaX: 830, metaY: 390, startX: 50, startY: 300
+            plataformas: [{ x: 0, y: 470, width: 300, height: 80 }, { x: 380, y: 470, width: 520, height: 80 }, { x: 150, y: 350, width: 120, height: 20 }, { x: 400, y: 260, width: 140, height: 20 }, { x: 680, y: 180, width: 150, height: 20 }],
+            inimigos: [{ x: 420, y: 395, width: 65, height: 75, dir: 3, minX: 380, maxX: 850, vivo: true, img: "novo" }, { x: 420, y: 185, width: 65, height: 75, dir: -2, minX: 400, maxX: 520, vivo: true, img: "novo" }],
+            batatas: [{ x: 450, y: 210, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300
         },
-        5: { // Fase 5 cheia de obstáculos e inimigos novos
+        5: { 
             fundo: "fundo1.png",
-            plataformas: [
-                { x: 0, y: 470, width: 200, height: 80 }, { x: 250, y: 470, width: 200, height: 80 }, { x: 500, y: 470, width: 400, height: 80 },
-                { x: 200, y: 370, width: 100, height: 20 }, { x: 380, y: 290, width: 100, height: 20 }, { x: 600, y: 200, width: 140, height: 20 }
-            ],
-            inimigos: [
-                { x: 270, y: 395, width: 65, height: 75, dir: 2.5, minX: 250, maxX: 430, vivo: true, img: "novo" },
-                { x: 620, y: 125, width: 65, height: 75, dir: -3, minX: 600, maxX: 720, vivo: true, img: "novo" }
-            ],
-            batatas: [{ x: 650, y: 150, visivel: true }],
-            metaX: 830, metaY: 390, startX: 50, startY: 300
+            plataformas: [{ x: 0, y: 470, width: 200, height: 80 }, { x: 250, y: 470, width: 200, height: 80 }, { x: 500, y: 470, width: 400, height: 80 }, { x: 200, y: 370, width: 100, height: 20 }, { x: 380, y: 290, width: 100, height: 20 }, { x: 600, y: 200, width: 140, height: 20 }],
+            inimigos: [{ x: 270, y: 395, width: 65, height: 75, dir: 2.5, minX: 250, maxX: 430, vivo: true, img: "novo" }, { x: 620, y: 125, width: 65, height: 75, dir: -3, minX: 600, maxX: 720, vivo: true, img: "novo" }],
+            batatas: [{ x: 650, y: 150, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300
         },
-        6: { // Fase 6 - O Confronto Final contra os Chefões (viloes.png)
+        6: { 
             fundo: "fundo3.png",
-            plataformas: [
-                { x: 0, y: 470, width: 900, height: 80 },
-                { x: 200, y: 350, width: 150, height: 20 },
-                { x: 550, y: 250, width: 150, height: 20 }
-            ],
-            inimigos: [
-                { x: 600, y: 375, width: 95, height: 95, dir: 2, minX: 500, maxX: 820, vivo: true, img: "chefe" }
-            ],
-            batatas: [{ x: 220, y: 300, visivel: true }],
-            metaX: 830, metaY: 390, startX: 50, startY: 300
+            plataformas: [{ x: 0, y: 470, width: 900, height: 80 }, { x: 200, y: 350, width: 150, height: 20 }, { x: 550, y: 250, width: 150, height: 20 }],
+            inimigos: [{ x: 600, y: 375, width: 95, height: 95, dir: 2, minX: 500, maxX: 820, vivo: true, img: "chefe" }],
+            batatas: [{ x: 220, y: 300, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300
         }
     };
 
     let inimigosAtuais = [];
     let batatasAtuais = [];
 
-    function iniciarSkin(skin) {
-        imgRayssa.src = skin;
-        document.getElementById("menu").style.display = "none";
+    function iniciarJogo() {
+        imgRayssa.src = skinSelecionada;
         audioTema.play().catch(() => {});
         estadoJogo = "jogando";
-        carregarFase(1);
+        carregarFase(carregarFaseDestino);
         loop();
     }
 
     function carregarFase(n) {
         faseAtual = n;
         faseTexto.innerText = "FASE " + faseAtual;
+        localStorage.setItem('rayssa_bros_save', JSON.stringify({ fase: faseAtual }));
         
         player.x = fases[n].startX;
         player.y = fases[n].startY;
@@ -205,19 +367,20 @@
         } 
     }
 
-    // Controles Touch / Mouse
+    // CONTROLES DE TOQUE NO IPHONE
     const setupBtn = (id, onStart, onEnd) => {
         const btn = document.getElementById(id);
         btn.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(); });
         btn.addEventListener('touchend', (e) => { e.preventDefault(); if(onEnd) onEnd(); });
         btn.addEventListener('mousedown', onStart);
-        btn.addEventListener('mouseup', ifEnd => onEnd ? onEnd() : null);
+        btn.addEventListener('mouseup', () => onEnd ? onEnd() : null);
     };
 
     setupBtn('btnEsq', () => mover(-6), parar);
     setupBtn('btnDir', () => mover(6), parar);
     setupBtn('btnPulo', pular, null);
 
+    // LOOP PRINCIPAL DO CANVAS
     function loop() {
         if (estadoJogo === "jogando") {
             player.x += player.dx;
@@ -276,19 +439,19 @@
                 }
             });
 
-            // Meta / Fim da Fase
+            // Fim da fase / Meta
             let meta = fases[faseAtual];
             if (player.x + player.width > meta.metaX && player.x < meta.metaX + 40 &&
                 player.y + player.height > meta.metaY && player.y < meta.metaY + 80) {
                 if (faseAtual < totalFases) {
-                    estadoJogo = "transicao"; // Ativa a tela de parabéns por fase
+                    estadoJogo = "transicao";
                 } else {
-                    estadoJogo = "vitoria"; // Zerou o jogo todo
+                    estadoJogo = "vitoria";
                 }
             }
         }
 
-        // --- RENDERIZAÇÃO ---
+        // DESENHO EM TELA
         ctx.clearRect(0, 0, 900, 550);
         
         if (imgFundo.complete && imgFundo.naturalWidth !== 0) {
@@ -339,48 +502,11 @@
         }
         ctx.restore();
 
-        // TELA DE TRANSIÇÃO ENTRE FASES
+        // TELA DE TRANSIÇÃO (PASSOU DE FASE)
         if (estadoJogo === "transicao") {
             ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
             ctx.fillRect(0, 0, 900, 550);
 
             ctx.fillStyle = "#2ecc71";
             ctx.font = "bold 38px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("🎉 PARABÉNS! 🎉", 450, 190);
-
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "26px sans-serif";
-            ctx.fillText("Você passou da Fase " + faseAtual + "!", 450, 250);
-
-            ctx.fillStyle = "#f1c40f";
-            ctx.font = "bold 20px sans-serif";
-            ctx.fillText("Toque em 'PULAR' para ir para a Fase " + (faseAtual + 1), 450, 330);
-            ctx.textAlign = "left";
-        }
-
-        // TELA DE VITÓRIA FINAL
-        if (estadoJogo === "vitoria") {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
-            ctx.fillRect(0, 0, 900, 550);
-
-            ctx.fillStyle = "#f1c40f";
-            ctx.font = "bold 42px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("🏆 VITÓRIA ÉPICA, RAYSSA! 🏆", 450, 180);
-
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "24px sans-serif";
-            ctx.fillText("Você derrotou os chefões e zerou todas as fases!", 450, 240);
-
-            ctx.fillStyle = "#2ecc71";
-            ctx.font = "bold 20px sans-serif";
-            ctx.fillText("Pressione 'PULAR' para jogar novamente", 450, 330);
-            ctx.textAlign = "left";
-        }
-
-        requestAnimationFrame(loop);
-    }
-</script>
-</body>
-</html>
+            ctx.textAlig
