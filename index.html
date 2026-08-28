@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rayssa Bros 2</title>
+    <style>
+        * { 
+            touch-action: manipulation; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            background: #000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            font-family: Arial, sans-serif; 
+        }
+
+        canvas { 
+            background: #5c94fc; 
+            border: 4px solid #fff; 
+            border-radius: 12px; 
+            width: 95vw; 
+            max-width: 900px; 
+            height: auto; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
+        }
+
+        .info { 
+            color: white; 
+            font-size: 24px; 
+            margin-bottom: 8px; 
+            font-weight: bold; 
+            text-shadow: 2px 2px #000; 
+        }
+
+        .controls { 
+            display: flex; 
+            gap: 15px; 
+            margin-top: 12px; 
+            width: 95vw; 
+            max-width: 900px; 
+            justify-content: center; 
+        }
+
+        .controls button { 
+            background: #e60012; 
+            border: none; 
+            padding: 18px 0; 
+            color: white; 
+            font-size: 24px; 
+            border-radius: 12px; 
+            box-shadow: 0 6px #990000; 
+            flex: 1; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
+        .controls .btn-jump { 
+            background: #f1c40f; 
+            box-shadow: 0 6px #d4ac0d; 
+            color: #333; 
+        }
+
+        .controls button:active { 
+            box-shadow: 0 2px #990000; 
+            transform: translateY(4px); 
+        }
+
+        .overlay-screen { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 20; 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #000;
+        }
+
+        .hidden { display: none !important; }
+
+        .menu-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 500px;
+            max-height: 500px;
+        }
+
+        .btn-area { 
+            position: absolute;
+            background: rgba(0, 0, 0, 0); 
+            border: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 30;
+        }
+
+        .load-bar-container {
+            width: 65%;
+            max-width: 320px;
+            height: 22px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #fff;
+            border-radius: 11px;
+            overflow: hidden;
+            margin-top: 40px;
+        }
+
+        .load-bar {
+            height: 100%;
+            width: 0%;
+            background: #e74c3c;
+            transition: width 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA 1: ENTRADA 01 -->
+    <div id="main-menu" class="overlay-screen" style="background-image: url('entrada01.png');">
+        <div class="menu-container">
+            <div class="btn-area" onclick="openPlayMenu()" style="top: 55%; left: 20%; width: 60%; height: 11%;"></div>
+            <div class="btn-area" onclick="alert('Feche a aba para sair!')" style="top: 68%; left: 20%; width: 60%; height: 11%;"></div>
+        </div>
+    </div>
+
+    <!-- TELA 2: ENTRADA 02 -->
+    <div id="play-menu" class="overlay-screen hidden" style="background-image: url('entrada02.png');">
+        <div class="menu-container">
+            <div class="btn-area" onclick="novoJogo()" style="top: 44%; left: 20%; width: 60%; height: 11%;"></div>
+            <div id="btnLoad" class="btn-area" onclick="carregarJogoSalvo()" style="top: 57%; left: 20%; width: 60%; height: 11%;"></div>
+            <div class="btn-area" onclick="changeScreen('main-menu')" style="top: 70%; left: 20%; width: 60%; height: 11%;"></div>
+        </div>
+    </div>
+
+    <!-- TELA 3: ROUPAS -->
+    <div id="skin-menu" class="overlay-screen hidden" style="background-image: url('roupas.png');">
+        <div class="menu-container">
+            <div class="btn-area" onclick="selecionarSkin('rayssa_vermelha.png')" style="top: 40%; left: 20%; width: 60%; height: 11%;"></div>
+            <div class="btn-area" onclick="selecionarSkin('rayssa_preta.png')" style="top: 53%; left: 20%; width: 60%; height: 11%;"></div>
+            <div class="btn-area" onclick="changeScreen('play-menu')" style="top: 66%; left: 20%; width: 60%; height: 11%;"></div>
+        </div>
+    </div>
+
+    <!-- TELA 4: LOAD -->
+    <div id="load-screen" class="overlay-screen hidden" style="background-image: url('load.png');">
+        <div class="load-bar-container">
+            <div id="loadBar" class="load-bar"></div>
+        </div>
+        <p id="loadProgress" style="color: white; font-weight: bold; margin-top: 6px; font-size: 18px; text-shadow: 2px 2px #000;">0%</p>
+    </div>
+
+    <!-- JOGO -->
+    <div class="info" id="faseTexto">FASE 1</div>
+    <canvas id="gameCanvas" width="900" height="550"></canvas>
+
+    <div class="controls">
+        <button id="btnEsq">◀</button>
+        <button id="btnPulo" class="btn-jump">▲ Pular</button>
+        <button id="btnDir">▶</button>
+    </div>
+<script>
+    const audioTema = new Audio('tema.mp3'); audioTema.loop = true;
+    const audioPulo = new Audio('pulo.mp3');
+    const audioMorte = new Audio('morte.mp3');
+    const audioPowerup = new Audio('powerup.mp3');
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const faseTexto = document.getElementById("faseTexto");
+
+    const imgRayssa = new Image();
+    const imgInimigoComum = new Image(); imgInimigoComum.src = "inimigo1.png";
+    const imgInimigoNovo = new Image(); imgInimigoNovo.src = "inimigo2.png";
+    const imgChefe = new Image(); imgChefe.src = "vilao.png";
+    const imgBatata = new Image(); imgBatata.src = "batata.png";
+    const imgFundo = new Image();
+
+    let faseAtual = 1;
+    let carregarFaseDestino = 1;
+    const totalFases = 6; 
+    let estadoJogo = "menu";
+    let skinSelecionada = 'rayssa_vermelha.png';
+    let currentScreen = 'main-menu';
+
+    function changeScreen(newScreen) {
+        document.getElementById(currentScreen).classList.add('hidden');
+        document.getElementById(newScreen).classList.remove('hidden');
+        currentScreen = newScreen;
+    }
+
+    function openPlayMenu() {
+        const hasSave = localStorage.getItem('rayssa_bros_save');
+        const loadBtn = document.getElementById('btnLoad');
+        if (!hasSave) loadBtn.style.pointerEvents = 'none';
+        else loadBtn.style.pointerEvents = 'auto';
+        changeScreen('play-menu');
+    }
+
+    function novoJogo() {
+        carregarFaseDestino = 1;
+        changeScreen('skin-menu');
+    }
+
+    function carregarJogoSalvo() {
+        const saveData = localStorage.getItem('rayssa_bros_save');
+        if (saveData) {
+            const data = JSON.parse(saveData);
+            carregarFaseDestino = data.fase || 1;
+            changeScreen('skin-menu');
+        }
+    }
+
+    function selecionarSkin(skin) {
+        skinSelecionada = skin;
+        iniciarCarregamento();
+    }
+
+    function iniciarCarregamento() {
+        changeScreen('load-screen');
+        let progresso = 0;
+        const loadBar = document.getElementById('loadBar');
+        const loadProgress = document.getElementById('loadProgress');
+
+        const intervalo = setInterval(() => {
+            progresso += Math.floor(Math.random() * 6) + 4;
+            if (progresso > 100) progresso = 100;
+
+            loadBar.style.width = progresso + '%';
+            loadProgress.innerText = progresso + '%';
+
+            if (progresso === 100) {
+                clearInterval(intervalo);
+                setTimeout(() => { 
+                    document.getElementById('load-screen').classList.add('hidden');
+                    iniciarJogo(); 
+                }, 300);
+            }
+        }, 30);
+    }
+
+    let player = { 
+        x: 50, y: 300, 
+        width: 65, height: 85, 
+        baseW: 65, baseH: 85, 
+        dx: 0, dy: 0, 
+        noChao: false, 
+        viradoEsq: false, 
+        gigante: false 
+    };
+    const gravidade = 0.5;
+
+    const fases = {
+        1: { 
+            fundo: "fundo1.png",
+            plataformas: [{ x: 0, y: 470, width: 280, height: 80 }, { x: 360, y: 470, width: 250, height: 80 }, { x: 680, y: 470, width: 220, height: 80 }, { x: 220, y: 340, width: 150, height: 20 }, { x: 480, y: 250, width: 160, height: 20 }], 
+            inimigos: [{ x: 380, y: 395, width: 60, height: 75, dir: 2, minX: 360, maxX: 580, vivo: true, img: "comum" }, { x: 500, y: 195, width: 60, height: 75, dir: -2, minX: 480, maxX: 620, vivo: true, img: "comum" }],
+            batatas: [{ x: 400, y: 200, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300 
+        },
+        2: { 
+            fundo: "fundo2.png",
+            plataformas: [{ x: 0, y: 470, width: 220, height: 80 }, { x: 280, y: 470, width: 200, height: 80 }, { x: 540, y: 470, width: 360, height: 80 }, { x: 220, y: 360, width: 130, height: 20 }, { x: 420, y: 280, width: 130, height: 20 }, { x: 650, y: 200, width: 150, height: 20 }], 
+            inimigos: [{ x: 300, y: 395, width: 60, height: 75, dir: 2.5, minX: 280, maxX: 440, vivo: true, img: "comum" }, { x: 680, y: 125, width: 60, height: 75, dir: -2.5, minX: 650, maxX: 780, vivo: true, img: "comum" }],
+            batatas: [{ x: 700, y: 150, visivel: true }], metaX: 810, metaY: 390, startX: 50, startY: 300 
+        },
+        3: { 
+            fundo: "fundo3.png",
+            plataformas: [{ x: 0, y: 470, width: 170, height: 80 }, { x: 230, y: 470, width: 170, height: 80 }, { x: 460, y: 470, width: 170, height: 80 }, { x: 690, y: 470, width: 210, height: 80 }, { x: 180, y: 370, width: 100, height: 20 }, { x: 360, y: 290, width: 100, height: 20 }, { x: 550, y: 210, width: 100, height: 20 }], 
+            inimigos: [{ x: 240, y: 395, width: 60, height: 75, dir: 2, minX: 230, maxX: 360, vivo: true, img: "comum" }, { x: 380, y: 215, width: 60, height: 75, dir: -2, minX: 360, maxX: 440, vivo: true, img: "comum" }],
+            batatas: [{ x: 200, y: 300, visivel: true }], metaX: 820, metaY: 390, startX: 50, startY: 300 
+        },
+        4: { 
+            fundo: "fundo2.png",
+            plataformas: [{ x: 0, y: 470, width: 300, height: 80 }, { x: 380, y: 470, width: 520, height: 80 }, { x: 150, y: 350, width: 120, height: 20 }, { x: 400, y: 260, width: 140, height: 20 }, { x: 680, y: 180, width: 150, height: 20 }],
+            inimigos: [{ x: 420, y: 395, width: 65, height: 75, dir: 3, minX: 380, maxX: 850, vivo: true, img: "novo" }, { x: 420, y: 185, width: 65, height: 75, dir: -2, minX: 400, maxX: 520, vivo: true, img: "novo" }],
+            batatas: [{ x: 450, y: 210, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300
+        },
+        5: { 
+            fundo: "fundo1.png",
+            plataformas: [{ x: 0, y: 470, width: 200, height: 80 }, { x: 250, y: 470, width: 200, height: 80 }, { x: 500, y: 470, width: 400, height: 80 }, { x: 200, y: 370, width: 100, height: 20 }, { x: 380, y: 290, width: 100, height: 20 }, { x: 600, y: 200, width: 140, height: 20 }],
+            inimigos: [{ x: 270, y: 395, width: 65, height: 75, dir: 2.5, minX: 250, maxX: 430, vivo: true, img: "novo" }, { x: 620, y: 125, width: 65, height: 75, dir: -3, minX: 600, maxX: 720, vivo: true, img: "novo" }],
+            batatas: [{ x: 650, y: 150, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300
+        },
+        6: { 
+            fundo: "fundo3.png",
+            plataformas: [{ x: 0, y: 470, width: 900, height: 80 }, { x: 200, y: 350, width: 150, height: 20 }, { x: 550, y: 250, width: 150, height: 20 }],
+            inimigos: [{ x: 600, y: 375, width: 95, height: 95, dir: 2, minX: 500, maxX: 820, vivo: true, img: "chefe" }],
+            batatas: [{ x: 220, y: 300, visivel: true }], metaX: 830, metaY: 390, startX: 50, startY: 300
+        }
+    };
+
+    let inimigosAtuais = [];
+    let batatasAtuais = [];
+
+    function iniciarJogo() {
+        imgRayssa.src = skinSelecionada;
+        audioTema.play().catch(() => {});
+        estadoJogo = "jogando";
+        carregarFase(carregarFaseDestino);
+        loop();
+    }
+
+    function carregarFase(n) {
+        faseAtual = n;
+        faseTexto.innerText = "FASE " + faseAtual;
+        localStorage.setItem('rayssa_bros_save', JSON.stringify({ fase: faseAtual }));
+        
+        player.x = fases[n].startX;
+        player.y = fases[n].startY;
+        player.dx = 0; player.dy = 0;
+        player.gigante = false;
+        player.width = player.baseW;
+        player.height = player.baseH;
+        player.noChao = false;
+
+        imgFundo.src = fases[n].fundo;
+        inimigosAtuais = JSON.parse(JSON.stringify(fases[n].inimigos));
+        batatasAtuais = JSON.parse(JSON.stringify(fases[n].batatas));
+    }
+
+    function mover(vel) { if(estadoJogo === "jogando") { player.dx = vel; if(vel !== 0) player.viradoEsq = (vel < 0); } }
+    function parar() { player.dx = 0; }
+    function pular() { 
+        if (estadoJogo === "transicao") {
+            if (faseAtual < totalFases) { carregarFase(faseAtual + 1); estadoJogo = "jogando"; } 
+            else { estadoJogo = "vitoria"; }
+            return;
+        }
+        if (estadoJogo === "vitoria") { carregarFase(1); estadoJogo = "jogando"; return; }
+        if (estadoJogo === "jogando" && player.noChao) { 
+            player.dy = -13; player.noChao = false; 
+            audioPulo.currentTime = 0; audioPulo.play().catch(() => {});
+        } 
+    }
+
+    const setupBtn = (id, onStart, onEnd) => {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(); }, { passive: false });
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); if(onEnd) onEnd(); }, { passive: false });
+        btn.addEventListener('mousedown', onStart);
+        btn.addEventListener('mouseup', () => onEnd ? onEnd() : null);
+    };
+
+    setupBtn('btnEsq', () => mover(-6), parar);
+    setupBtn('btnDir', () => mover(6), parar);
+    setupBtn('btnPulo', pular, null);
+
+    function loop() {
+        if (estadoJogo === "jogando") {
+            player.x += player.dx; player.dy += gravidade; player.y += player.dy; player.noChao = false;
+            if (player.x < 0) player.x = 0;
+            if (player.x > 840) player.x = 840;
+            if (player.y > 550) carregarFase(faseAtual);
+
+            fases[faseAtual].plataformas.forEach(p => {
+                if (player.x + player.width > p.x && player.x < p.x + p.width) {
+                    if (player.y + player.height >= p.y && player.y + player.height - player.dy <= p.y + 12) {
+                        player.dy = 0; player.y = p.y - player.height; player.noChao = true;
+                    }
+                }
+            });
+
+            inimigosAtuais.forEach(inimigo => {
+                if (!inimigo.vivo) return;
+                inimigo.x += inimigo.dir;
+                if (inimigo.x > inimigo.maxX || inimigo.x < inimigo.minX) inimigo.dir *= -1;
+
+                if (player.x < inimigo.x + inimigo.width - 10 && player.x + player.width > inimigo.x + 10 &&
+                    player.y < inimigo.y + inimigo.height && player.y + player.height > inimigo.y) {
+                    if (player.dy > 0 && player.y + player.height - player.dy <= inimigo.y + 25) {
+                        inimigo.vivo = false; player.dy = -10; 
+                        audioMorte.currentTime = 0; audioMorte.play().catch(() => {});
+                    } else { carregarFase(faseAtual); }
+                }
+            });
+
+            batatasAtuais.forEach(b => {
+                if (b.visivel && player.x < b.x + 40 && player.x + player.width > b.x && player.y < b.y + 40 && player.y + player.height > b.y) {
+                    b.visivel = false; player.gigante = true;
+                    player.width = player.baseW * 1.5; player.height = player.baseH * 1.5; 
+                    audioPowerup.currentTime = 0; audioPowerup.play().catch(() => {});
+                }
+            });
+
+            let meta = fases[faseAtual];
+            if (player.x + player.width > meta.metaX && player.x < meta.metaX + 40 && player.y + player.height > meta.metaY && player.y < meta.metaY + 80) {
+                if (faseAtual < totalFases) estadoJogo = "transicao";
+                else estadoJogo = "vitoria";
+            }
+        }
+
+        ctx.clearRect(0, 0, 900, 550);
+        if (imgFundo.complete && imgFundo.naturalWidth !== 0) ctx.drawImage(imgFundo, 0, 0, 900, 550);
+
+        fases[faseAtual].plataformas.forEach(p => {
+            ctx.fillStyle = "#8b4513"; ctx.fillRect(p.x, p.y, p.width, p.height);
+            ctx.fillStyle = "#2ecc71"; ctx.fillRect(p.x, p.y, p.width, 8);
+        });
+
+        ctx.fillStyle = "#f1c40f"; ctx.fillRect(fases[faseAtual].metaX, fases[faseAtual].metaY, 35, 80);
+
+        batatasAtuais.forEach(b => {
+            if (b.visivel && imgBatata.complete && imgBatata.naturalWidth !== 0) ctx.drawImage(imgBatata, b.x, b.y, 40, 40);
+        });
+
+        inimigosAtuais.forEach(inimigo => {
+            if (inimigo.vivo) {
+                let imgAtual = imgInimigoComum;
+                if (inimigo.img === "novo") imgAtual = imgInimigoNovo;
+                if (inimigo.img === "chefe") imgAtual = imgChefe;
+                if (imgAtual.complete && imgAtual.naturalWidth !== 0) {
+                    ctx.save();
+                    if (inimigo.dir < 0) {
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(imgAtual, -inimigo.x - inimigo.width, inimigo.y, inimigo.width, inimigo.height);
+                    } else { ctx.drawImage(imgAtual, inimigo.x, inimigo.y, inimigo.width, inimigo.height); }
+                    ctx.restore();
+                }
+            }
+        });
+
+        ctx.save();
+        if (player.viradoEsq) {
+            ctx.scale(-1, 1);
+            ctx.drawImage(imgRayssa, -player.x - player.width, player.y, player.width, player.height);
+        } else { ctx.drawImage(imgRayssa, player.x, player.y, player.width, player.height); }
+        ctx.restore();
+
+        if (estadoJogo === "transicao") {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.85)"; ctx.fillRect(0, 0, 900, 550);
+            ctx.fillStyle = "#2ecc71"; ctx.font = "bold 38px sans-serif"; ctx.textAlign = "center";
+            ctx.fillText("🎉 PARABÉNS! 🎉", 450, 190);
+            ctx.fillStyle = "#ffffff"; ctx.font = "26px sans-serif";
+            ctx.fillText("Você passou da Fase " + faseAtual + "!", 450, 250);
+            ctx.fillStyle = "#f1c40f"; ctx.font = "bold 20px sans-serif";
+            ctx.fillText("Toque em 'PULAR' para ir para a Fase " + (faseAtual + 1), 450, 330);
+            ctx.textAlign = "left";
+        }
+
+        if (estadoJogo === "vitoria") {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.9)"; ctx.fillRect(0, 0, 900, 550);
+            ctx.fillStyle = "#f1c40f"; ctx.font = "bold 42px sans-serif"; ctx.textAlign = "center";
+            ctx.fillText("🏆 VITÓRIA ÉPICA, RAYSSA! 🏆", 450, 180);
+            ctx.fillStyle = "#ffffff"; ctx.font = "24px sans-serif";
+            ctx.fillText("Você derrotou os chefões e zerou todas as fases!", 450, 240);
+            ctx.fillStyle = "#2ecc71"; ctx.font = "bold 20px sans-serif";
+            ctx.fillText("Toque em 'PULAR' para jogar novamente", 450, 330);
+            ctx.textAlign = "left";
+        }
+
+        if (estadoJogo === "jogando" || estadoJogo === "transicao" || estadoJogo === "vitoria") {
+            requestAnimationFrame(loop);
+        }
+    }
+</script>
+</body>
+</html>
