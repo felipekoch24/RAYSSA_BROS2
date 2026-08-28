@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rayssa Bros - Otimizado</title>
+    <title>Rayssa Bros - Otimizado iPhone</title>
     <style>
         * { 
             touch-action: manipulation; 
@@ -76,7 +76,7 @@
             transform: translateY(4px); 
         }
 
-        /* ESTILIZAGEM DAS TELAS (MENUS E CARREGAMENTO) */
+        /* ESTILIZAÇÃO DAS TELAS DE MENU E CARREGAMENTO */
         .overlay-screen { 
             position: absolute; 
             top: 0; left: 0; 
@@ -120,15 +120,24 @@
             box-shadow: none;
         }
 
+        /* IMAGEM DE CARREGAMENTO AUMENTADA E CENTRALIZADA */
+        .load-img {
+            max-width: 260px;
+            width: 70vw;
+            height: auto;
+            margin-bottom: 15px;
+            object-fit: contain;
+        }
+
         .load-bar-container {
-            width: 70%;
-            max-width: 350px;
-            height: 26px;
+            width: 80%;
+            max-width: 400px;
+            height: 28px;
             background: #222;
             border: 3px solid #fff;
-            border-radius: 13px;
+            border-radius: 14px;
             overflow: hidden;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .load-bar {
@@ -162,11 +171,12 @@
     </div>
 
     <div id="load-screen" class="overlay-screen hidden" style="background: #000;">
-        <h2 style="font-size: 28px;">CARREGANDO FASE...</h2>
+        <img src="load.png" alt="Carregando" class="load-img" onerror="this.style.display='none'">
+        <h2 style="font-size: 26px; letter-spacing: 1px;">CARREGANDO FASE...</h2>
         <div class="load-bar-container">
             <div id="loadBar" class="load-bar"></div>
         </div>
-        <p id="loadProgress" style="font-size: 18px; font-weight: bold; margin-top: 5px;">0%</p>
+        <p id="loadProgress" style="font-size: 20px; font-weight: bold; margin-top: 8px;">0%</p>
     </div>
 
     <div class="info" id="faseTexto">FASE 1</div>
@@ -180,7 +190,7 @@
     </div>
 
 <script>
-    // Gerenciador de Áudios
+    // Áudios
     const audioTema = new Audio('tema.mp3'); audioTema.loop = true;
     const audioPulo = new Audio('pulo.mp3');
     const audioMorte = new Audio('morte.mp3');
@@ -204,7 +214,6 @@
     let skinSelecionada = 'rayssa_vermelha.png';
     let currentScreen = 'main-menu';
 
-    // SISTEMA DE TROCA DE TELAS / NAVEGAÇÃO
     function changeScreen(newScreen) {
         document.getElementById(currentScreen).classList.add('hidden');
         document.getElementById(newScreen).classList.remove('hidden');
@@ -261,7 +270,6 @@
         }, 30);
     }
 
-    // ESTRUTURA E REGRAS DO JOGO
     let player = { 
         x: 50, y: 300, 
         width: 65, height: 85, 
@@ -367,7 +375,6 @@
         } 
     }
 
-    // CONTROLES DE TOQUE NO IPHONE
     const setupBtn = (id, onStart, onEnd) => {
         const btn = document.getElementById(id);
         btn.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(); });
@@ -380,7 +387,6 @@
     setupBtn('btnDir', () => mover(6), parar);
     setupBtn('btnPulo', pular, null);
 
-    // LOOP PRINCIPAL DO CANVAS
     function loop() {
         if (estadoJogo === "jogando") {
             player.x += player.dx;
@@ -395,7 +401,6 @@
                 carregarFase(faseAtual);
             }
 
-            // Plataformas
             fases[faseAtual].plataformas.forEach(p => {
                 if (player.x + player.width > p.x && player.x < p.x + p.width) {
                     if (player.y + player.height >= p.y && player.y + player.height - player.dy <= p.y + 12) {
@@ -406,7 +411,6 @@
                 }
             });
 
-            // Inimigos
             inimigosAtuais.forEach(inimigo => {
                 if (!inimigo.vivo) return;
                 inimigo.x += inimigo.dir;
@@ -426,7 +430,6 @@
                 }
             });
 
-            // Batata (Power-up)
             batatasAtuais.forEach(b => {
                 if (b.visivel && player.x < b.x + 40 && player.x + player.width > b.x &&
                     player.y < b.y + 40 && player.y + player.height > b.y) {
@@ -439,7 +442,6 @@
                 }
             });
 
-            // Fim da fase / Meta
             let meta = fases[faseAtual];
             if (player.x + player.width > meta.metaX && player.x < meta.metaX + 40 &&
                 player.y + player.height > meta.metaY && player.y < meta.metaY + 80) {
@@ -451,7 +453,6 @@
             }
         }
 
-        // DESENHO EM TELA
         ctx.clearRect(0, 0, 900, 550);
         
         if (imgFundo.complete && imgFundo.naturalWidth !== 0) {
@@ -502,11 +503,50 @@
         }
         ctx.restore();
 
-        // TELA DE TRANSIÇÃO (PASSOU DE FASE)
         if (estadoJogo === "transicao") {
             ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
             ctx.fillRect(0, 0, 900, 550);
 
             ctx.fillStyle = "#2ecc71";
             ctx.font = "bold 38px sans-serif";
-            ctx.textAlig
+                        ctx.textAlign = "center";
+            ctx.fillText("🎉 PARABÉNS! 🎉", 450, 190);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "26px sans-serif";
+            ctx.fillText("Você passou da Fase " + faseAtual + "!", 450, 250);
+
+            ctx.fillStyle = "#f1c40f";
+            ctx.font = "bold 20px sans-serif";
+            ctx.fillText("Toque em 'PULAR' para ir para a Fase " + (faseAtual + 1), 450, 330);
+            ctx.textAlign = "left";
+        }
+
+        if (estadoJogo === "vitoria") {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
+            ctx.fillRect(0, 0, 900, 550);
+
+            ctx.fillStyle = "#f1c40f";
+            ctx.font = "bold 42px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("🏆 VITÓRIA ÉPICA, RAYSSA! 🏆", 450, 180);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "24px sans-serif";
+            ctx.fillText("Você derrotou os chefões e zerou todas as fases!", 450, 240);
+
+            ctx.fillStyle = "#2ecc71";
+            ctx.font = "bold 20px sans-serif";
+            ctx.fillText("Toque em 'PULAR' para jogar novamente", 450, 330);
+            ctx.textAlign = "left";
+        }
+
+        if (estadoJogo === "jogando" || estadoJogo === "transicao" || estadoJogo === "vitoria") {
+            requestAnimationFrame(loop);
+        }
+    }
+</script>
+</body>
+</html>
+
+          
