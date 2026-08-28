@@ -76,7 +76,6 @@
             transform: translateY(4px); 
         }
 
-        /* ESTRUTURA DAS ARTES DE FUNDO */
         .overlay-screen { 
             position: absolute; 
             top: 0; left: 0; 
@@ -94,18 +93,15 @@
 
         .hidden { display: none !important; }
 
-        /* AREAS CLICÁVEIS SOBRE OS BOTÕES DA IMAGEM */
         .btn-area { 
-            width: 80%;
-            max-width: 300px;
-            height: 50px;
-            margin: 8px 0;
-            background: rgba(255, 255, 255, 0); 
+            position: absolute;
+            background: rgba(0, 0, 0, 0); 
             border: none;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 30;
         }
 
-        /* BARRA DE CARREGAMENTO SOBRE A ARTE LOAD.PNG */
         .load-bar-container {
             width: 65%;
             max-width: 320px;
@@ -129,25 +125,28 @@
 
     <!-- TELA 1: ENTRADA 01 -->
     <div id="main-menu" class="overlay-screen" style="background-image: url('entrada01.png');">
-        <div style="height: 100px;"></div> <!-- Espaçador visual -->
-        <button class="btn-area" onclick="openPlayMenu()"></button>
-        <button class="btn-area" onclick="alert('Feche a aba para sair!')"></button>
+        <div style="position: relative; width: 100vw; height: 100vh; max-width: 500px; max-height: 500px;">
+            <div class="btn-area" onclick="openPlayMenu()" ontouchstart="openPlayMenu()" style="top: 55%; left: 22.5%; width: 55%; height: 12%;"></div>
+            <div class="btn-area" onclick="alert('Feche a aba para sair!')" ontouchstart="alert('Feche a aba para sair!')" style="top: 69%; left: 22.5%; width: 55%; height: 12%;"></div>
+        </div>
     </div>
 
     <!-- TELA 2: ENTRADA 02 -->
     <div id="play-menu" class="overlay-screen hidden" style="background-image: url('entrada02.png');">
-        <div style="height: 60px;"></div>
-        <button class="btn-area" onclick="novoJogo()"></button>
-        <button id="btnLoad" class="btn-area" onclick="carregarJogoSalvo()"></button>
-        <button class="btn-area" onclick="changeScreen('main-menu')"></button>
+        <div style="position: relative; width: 100vw; height: 100vh; max-width: 500px; max-height: 500px;">
+            <div class="btn-area" onclick="novoJogo()" ontouchstart="novoJogo()" style="top: 44%; left: 22.5%; width: 55%; height: 11%;"></div>
+            <div id="btnLoad" class="btn-area" onclick="carregarJogoSalvo()" ontouchstart="carregarJogoSalvo()" style="top: 57%; left: 22.5%; width: 55%; height: 11%;"></div>
+            <div class="btn-area" onclick="changeScreen('main-menu')" ontouchstart="changeScreen('main-menu')" style="top: 70%; left: 22.5%; width: 55%; height: 11%;"></div>
+        </div>
     </div>
 
     <!-- TELA 3: ROUPAS -->
     <div id="skin-menu" class="overlay-screen hidden" style="background-image: url('roupas.png');">
-        <div style="height: 60px;"></div>
-        <button class="btn-area" onclick="selecionarSkin('rayssa_vermelha.png')"></button>
-        <button class="btn-area" onclick="selecionarSkin('rayssa_preta.png')"></button>
-        <button class="btn-area" onclick="changeScreen('play-menu')"></button>
+        <div style="position: relative; width: 100vw; height: 100vh; max-width: 500px; max-height: 500px;">
+            <div class="btn-area" onclick="selecionarSkin('rayssa_vermelha.png')" ontouchstart="selecionarSkin('rayssa_vermelha.png')" style="top: 40%; left: 22.5%; width: 55%; height: 11%;"></div>
+            <div class="btn-area" onclick="selecionarSkin('rayssa_preta.png')" ontouchstart="selecionarSkin('rayssa_preta.png')" style="top: 53%; left: 22.5%; width: 55%; height: 11%;"></div>
+            <div class="btn-area" onclick="changeScreen('play-menu')" ontouchstart="changeScreen('play-menu')" style="top: 66%; left: 22.5%; width: 55%; height: 11%;"></div>
+        </div>
     </div>
 
     <!-- TELA 4: LOAD -->
@@ -167,7 +166,7 @@
         <button id="btnPulo" class="btn-jump">▲ Pular</button>
         <button id="btnDir">▶</button>
     </div>
-<script>
+    <script>
     const audioTema = new Audio('tema.mp3'); audioTema.loop = true;
     const audioPulo = new Audio('pulo.mp3');
     const audioMorte = new Audio('morte.mp3');
@@ -463,3 +462,4 @@
 </script>
 </body>
 </html>
+
